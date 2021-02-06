@@ -1,0 +1,71 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+# 触发器, 当分支为Master、Develop或进行Tag时触发
+trigger:
+  ref:
+    - refs/heads/master
+    - refs/heads/develop
+    - refs/tags/**
+
+steps:
+  # 镜像Tag
+  # 默认使用Git Commit SHA作为容器Tag
+  # 当分支为Develop时, 增加latest作为镜像Tag
+  # 存在Git Tag时, 增加Git Tag作为镜像Tag
+  - name: tags
+    image: alpine
+    commands:
+      - echo -n "$DRONE_COMMIT_SHA" >> .tags
+      - $([ "$DRONE_BRANCH" = "develop" ] && echo -n ",latest" >> .tags || echo "")
+      - $([ -n "$DRONE_TAG" ] && echo -n ",$DRONE_TAG" >> .tags || echo "")
+      - cat .tags
+
+  # 测试代码
+  - name: test
+    image: golang
+    environment:
+      GOPROXY: https://goproxy.cn
+    # 挂载目录, 共享Go依赖, 避免重复下载
+    volumes:
+      - name: deps
+        path: /go
+    commands:
+      - go test
+
+  # 构建代码
+  - name: build
+    image: golang
+    environment:
+      GOPROXY: https://goproxy.cn
+    # 挂载目录, 共享Go依赖, 避免重复下载
+    volumes:
+      - name: deps
+        path: /go
+    commands:
+      - CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o main .
+    # 等待tags和test阶段, tags和test阶段并行执行
+    depends_on:
+      - tags
+      - test
+
+  # 构建镜像
+  - name: docker
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      repo: harbor.ittreasury.com/demo/app
+      registry: harbor.ittreasury.com
+      username:
+        # 敏感信息使用密文, 在Drone中对密文进行配置
+        from_secret: REGISTRY_USERNAME
+      password:
+        # 敏感信息使用密文, 在Drone中对密文进行配置
+        from_secret: REGISTRY_PASSWORD
+    depends_on:
+      - build
+
+volumes:
+  - name: deps
+    temp: {}
