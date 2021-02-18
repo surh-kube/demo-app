@@ -114,8 +114,8 @@ trigger:
   image: plugins/docker
   settings:
     dockerfile: Dockerfile
-    repo: harbor.ittreasury.com/demo/app
-    registry: harbor.ittreasury.com
+    repo: harbor.surunhao.com/demo/app
+    registry: harbor.surunhao.com
     username:
       # 敏感信息使用密文, 在Drone中对密文进行配置
       from_secret: REGISTRY_USERNAME
