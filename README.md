@@ -1,4 +1,4 @@
-# GitOps Demo App [![Build Status](https://drone.ittreasury.com/api/badges/GIT/demo-app/status.svg)](https://drone.ittreasury.com/GIT/demo-app)
+# GitOps Demo App [![Build Status](https://drone.surunhao.com/api/badges/surh-kube/demo-app/status.svg?ref=refs/heads/main)](https://drone.surunhao.com/surh-kube/demo-app)
 
 <br/>
 
