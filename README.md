@@ -31,17 +31,14 @@ ENTRYPOINT ["/app/server"]
 
 ### I 触发器
 
-我们希望在master、develop分支进行提交动作时，或者进行tag时触发构建流程
+我们希望在main分支进行提交动作时，或者进行tag时触发构建流程
 
 ``` yaml
-# 触发器, 当分支为Master、Develop或进行Tag时触发
+# 触发器, 当分支为main或进行Tag时触发
 trigger:
   ref:
-    - refs/heads/master
-    - refs/heads/develop
+    - refs/heads/main
     - refs/tags/**
-
-
 ```
 
 <br/>
@@ -55,13 +52,13 @@ trigger:
 ``` yaml
 # 镜像Tag
 # 默认使用Git Commit SHA作为容器Tag
-# 当分支为Develop时, 增加latest作为镜像Tag
+# 当分支为main时, 增加latest作为镜像Tag
 # 存在Git Tag时, 增加Git Tag作为镜像Tag
 - name: tags
   image: alpine
   commands:
     - echo -n "$DRONE_COMMIT_SHA" >> .tags
-    - $([ "$DRONE_BRANCH" = "develop" ] && echo -n ",latest" >> .tags || echo "")
+    - $([ "$DRONE_BRANCH" = "main" ] && echo -n ",latest" >> .tags || echo "")
     - $([ -n "$DRONE_TAG" ] && echo -n ",$DRONE_TAG" >> .tags || echo "")
     - cat .tags
 ```
