@@ -65,19 +65,6 @@ steps:
     depends_on:
       - build
 
-  # 部署
-  - name: deploy
-    image: harbor.ittreasury.com/it-base/helm
-    environment:
-      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-      URL:
-        from_secret: KUBECONFIGURL
-    commands:
-      - curl -o /etc/rancher/k3s/k3s.yaml $URL
-      - helm list
-    depends_on:
-      - docker
-
 volumes:
   - name: deps
     temp: {}
